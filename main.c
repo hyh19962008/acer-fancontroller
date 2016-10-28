@@ -4,8 +4,9 @@
 #include <sys/io.h>
 #include <signal.h>
 
-#define target_temp 60
-#define tsensorfile "/sys/class/thermal/thermal_zone0/temp"
+#define target_temp 50
+#define strengh 20
+#define tsensorfile "/sys/class/thermal/thermal_zone1/temp"
 
 
 #define fan_control_reg 0x93
@@ -13,13 +14,6 @@
 #define fan_auto_mode 0x04
 #define fan_speed_reg 0x94
 #define fan_rpm_reg 0x95
-#define fan_speed_val_0 0xff
-#define fan_speed_val_10 0xe6 
-#define fan_speed_val_20 0xc8
-#define fan_speed_val_40 0x96
-#define fan_speed_val_50 0x7e
-#define fan_speed_val_60 0x64
-#define fan_speed_val_80 0x32
 
 
 
@@ -74,6 +68,7 @@ void speedSet(int speed) {
 int speedGet(void) {
 	return 255-read_ec(fan_rpm_reg);
 }
+
 void onintr(sig){
 	write_ec(fan_control_reg,fan_auto_mode);
 	exit(0);
@@ -91,23 +86,10 @@ int main()
 	while (1) {
 		write_ec(fan_control_reg,fan_manual_mode);
 		dt=gettemp()-target_temp;
-		if (dt < -6 ) {
-			pwm=0;
-		} else if (dt < -5) {
-			pwm=10;
-		} else if (dt < -3) {
-			pwm=25;
-		} else if (dt < -1) {
-			pwm=62;
-		} else if (dt < 2) {
-			pwm=100;
-		} else if (dt < 4) {
-			pwm=150;
-		} else {
-			pwm=200;
-		}
+			pwm=128+dt*strengh;
 		opwm=(opwm+pwm)/2;
-		speedSet(opwm);
+		speedSet(pwm);
+		printf("%d	%d	%d\n",dt,pwm,opwm);
 		sleep(5);
 	}
 }
