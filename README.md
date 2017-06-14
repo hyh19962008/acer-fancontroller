@@ -1,3 +1,6 @@
 # acer-fancontroller
-acer laptop fan controlling
-some information i get from https://code.google.com/archive/p/aceracpi/ and https://habrahabr.ru/post/189616/
+acer Laptop fan controlling fork
+- Usage:main [Target Temperature]
+refined code,especially in message and code readability
+add temperature control by parameter
+Realated informations https://code.google.com/archive/p/aceracpi/ and https://habrahabr.ru/post/189616/
