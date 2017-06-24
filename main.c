@@ -4,7 +4,6 @@
 #include <sys/io.h>
 #include <signal.h>
 
-#define target_temp 50
 #define strengh 20
 #define tsensorfile "/sys/class/thermal/thermal_zone1/temp"
 
@@ -74,22 +73,32 @@ void onintr(sig){
 	exit(0);
 }
 
-int main()
+int main(int argc,char *argv[])
 {
 	if (ioperm(0x62, 1, 1)) {perror("ioperm"); exit(1);}
 	if (ioperm(0x66, 1, 1)) {perror("ioperm"); exit(1);}
 	
+	int target_temp;
+	sscanf(argv[1],"%d",&target_temp);
+	if (argc==1)
+		{
+		printf("Usage:main [target temperature]");
+//		exit(1);
+		}
+	printf("Target temperature: %d 'C\n",target_temp);
+
 	signal (SIGINT, onintr);
-	int dt;
+	int gap_temp;
 	int pwm;
-	int opwm=0;
+	int oringinal_pwm=0;
+	printf("Current  Gap  Rpm   Pre_Rpm\n");
 	while (1) {
 		write_ec(fan_control_reg,fan_manual_mode);
-		dt=gettemp()-target_temp;
-			pwm=128+dt*strengh;
-		opwm=(opwm+pwm)/2;
+		gap_temp=gettemp()-target_temp;
+			pwm=128+gap_temp*strengh;
+		oringinal_pwm=(oringinal_pwm+pwm)/2;
 		speedSet(pwm);
-		printf("%d	%d	%d\n",dt,pwm,opwm);
+		printf("  %d     %d    %d0  %d0\n",gettemp(),gap_temp,pwm,oringinal_pwm);
 		sleep(5);
 	}
 }
