@@ -79,12 +79,14 @@ int main(int argc,char *argv[])
 	if (ioperm(0x66, 1, 1)) {perror("ioperm"); exit(1);}
 	
 	int target_temp;
-	sscanf(argv[1],"%d",&target_temp);
-	if (argc==1)
+	if (argc!=2)
 		{
-		printf("Usage:main [target temperature]");
-//		exit(1);
+		printf("Usage:main [target temperature]\n");
+		exit(1);
 		}
+	else 
+		sscanf(argv[1],"%d",&target_temp);
+		
 	printf("Target temperature: %d 'C\n",target_temp);
 
 	signal (SIGINT, onintr);
